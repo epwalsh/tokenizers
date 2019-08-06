@@ -40,14 +40,8 @@ impl Tokenizer {
         Tokenizer::new(token_pattern, infix_pattern, prefix_pattern, suffix_pattern)
     }
 
-    fn separate_affixes<'a, 'b>(
-        &'a self,
-        token: &'b str,
-    ) -> (Option<&'b str>, Option<&'b str>, Option<&'b str>) {
+    fn add_affixes<'a>(&self, tokens: &mut Vec<&'a str>, token: &'a str) {
         let token_size = token.len();
-        let mut middle: Option<&'b str> = None;
-        let mut prefix: Option<&'b str> = None;
-        let mut suffix: Option<&'b str> = None;
         if token_size > 0 {
             let prefix_size = match self.find_prefix(token) {
                 Some(size) => size,
@@ -63,16 +57,18 @@ impl Tokenizer {
                 middle_end = token_size
             };
             if middle_end > prefix_size {
-                middle = token.get(prefix_size..middle_end);
+                let middle = token.get(prefix_size..middle_end).unwrap();
+                tokens.push(middle);
             }
             if prefix_size > 0 {
-                prefix = token.get(0..prefix_size);
+                let prefix = token.get(0..prefix_size).unwrap();
+                tokens.push(prefix);
             }
             if token_size > middle_end {
-                suffix = token.get(middle_end..token_size);
+                let suffix = token.get(middle_end..token_size).unwrap();
+                tokens.push(suffix);
             }
         }
-        (prefix, middle, suffix)
     }
 
     pub fn tokenize<'a>(&self, s: &'a str) -> Vec<&'a str> {
@@ -93,30 +89,12 @@ impl Tokenizer {
                 let sub_token = token.get(sub_token_index..infix_match.start()).unwrap();
                 let infix = token.get(infix_match.start()..infix_match.end()).unwrap();
                 sub_token_index = infix_match.end();
-                let (prefix, middle, suffix) = self.separate_affixes(sub_token);
-                if let Some(piece) = prefix {
-                    final_tokens.push(piece);
-                }
-                if let Some(piece) = middle {
-                    final_tokens.push(piece);
-                }
-                if let Some(piece) = suffix {
-                    final_tokens.push(piece);
-                }
+                self.add_affixes(&mut final_tokens, sub_token);
                 final_tokens.push(infix);
             }
             if sub_token_index < token.len() {
                 let sub_token = token.get(sub_token_index..token.len()).unwrap();
-                let (prefix, middle, suffix) = self.separate_affixes(sub_token);
-                if let Some(piece) = prefix {
-                    final_tokens.push(piece);
-                }
-                if let Some(piece) = middle {
-                    final_tokens.push(piece);
-                }
-                if let Some(piece) = suffix {
-                    final_tokens.push(piece);
-                }
+                self.add_affixes(&mut final_tokens, sub_token);
             }
         }
         final_tokens
