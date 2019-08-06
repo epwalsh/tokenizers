@@ -36,7 +36,7 @@ impl Tokenizer {
         let token_pattern = r"^(https?://.*)$";
         let infix_pattern = r"[?,!.*+-]";
         let prefix_pattern = r"^(\$)";
-        let suffix_pattern = r"('m|'t|'d|'s)$";
+        let suffix_pattern = r"('m|'t|'d|'s|%)$";
         Tokenizer::new(token_pattern, infix_pattern, prefix_pattern, suffix_pattern)
     }
 
@@ -105,16 +105,18 @@ impl Tokenizer {
                 }
                 final_tokens.push(infix);
             }
-            let sub_token = token.get(sub_token_index..token.len()).unwrap();
-            let (prefix, middle, suffix) = self.separate_affixes(sub_token);
-            if let Some(piece) = prefix {
-                final_tokens.push(piece);
-            }
-            if let Some(piece) = middle {
-                final_tokens.push(piece);
-            }
-            if let Some(piece) = suffix {
-                final_tokens.push(piece);
+            if sub_token_index < token.len() {
+                let sub_token = token.get(sub_token_index..token.len()).unwrap();
+                let (prefix, middle, suffix) = self.separate_affixes(sub_token);
+                if let Some(piece) = prefix {
+                    final_tokens.push(piece);
+                }
+                if let Some(piece) = middle {
+                    final_tokens.push(piece);
+                }
+                if let Some(piece) = suffix {
+                    final_tokens.push(piece);
+                }
             }
         }
         final_tokens
