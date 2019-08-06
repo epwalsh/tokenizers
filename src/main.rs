@@ -1,15 +1,18 @@
-use tokenz::Tokenizer;
+use std::env;
+use std::process;
+
+use tokenz::{Config, run};
 
 fn main() {
-    let token_pattern = r"^(https?://.*)$";
-    // let infix_pattern = r"[?,!]|(?<=[0-9])-(?=[0-9-])";  // look-around not supported.
-    let infix_pattern = r"[?,!-]";
-    let tokenizer = Tokenizer::new(token_pattern, infix_pattern);
-    println!("{:#?}", tokenizer);
-    let s = String::from("Héllo,, World!-huh?\r\n😃 my website is https://epwalsh.com");
-    let tokens = tokenizer.tokenize(&s);
-    println!("\nFinal tokens:");
-    for token in &tokens {
-        println!("{}", token);
+    let args: Vec<String> = env::args().collect();
+
+    let config = Config::new(&args).unwrap_or_else(|err| {
+        println!("Problem parsing arguments: {}", err);
+        process::exit(1);
+    });
+
+    if let Err(e) = run(config) {
+        println!("Application error: {}", e);
+        process::exit(1);
     }
 }

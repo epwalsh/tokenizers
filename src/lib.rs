@@ -1,27 +1,78 @@
 extern crate regex;
 
+use std::error::Error;
+use std::fs;
+
 use regex::{Matches, Regex};
 
 #[derive(Debug)]
 pub struct Tokenizer {
     token_re: Regex,
     infix_re: Regex,
+    prefix_re: Regex,
+    suffix_re: Regex,
 }
 
 impl Tokenizer {
-    pub fn new(token_pattern: &str, infix_pattern: &str) -> Tokenizer {
+    pub fn new(
+        token_pattern: &str,
+        infix_pattern: &str,
+        prefix_pattern: &str,
+        suffix_pattern: &str,
+    ) -> Tokenizer {
         let token_re = Regex::new(token_pattern).unwrap();
         let infix_re = Regex::new(infix_pattern).unwrap();
+        let prefix_re = Regex::new(prefix_pattern).unwrap();
+        let suffix_re = Regex::new(suffix_pattern).unwrap();
         Tokenizer {
-            token_re: token_re,
-            infix_re: infix_re,
+            token_re,
+            infix_re,
+            prefix_re,
+            suffix_re,
         }
     }
 
     pub fn english() -> Tokenizer {
         let token_pattern = r"^(https?://.*)$";
-        let infix_pattern = r"[?,!-.*+]";
-        Tokenizer::new(token_pattern, infix_pattern)
+        let infix_pattern = r"[?,!.*+-]";
+        let prefix_pattern = r"^(\$)";
+        let suffix_pattern = r"('m|'t|'d|'s)$";
+        Tokenizer::new(token_pattern, infix_pattern, prefix_pattern, suffix_pattern)
+    }
+
+    fn separate_affixes<'a, 'b>(
+        &'a self,
+        token: &'b str,
+    ) -> (Option<&'b str>, Option<&'b str>, Option<&'b str>) {
+        let token_size = token.len();
+        let mut middle: Option<&'b str> = None;
+        let mut prefix: Option<&'b str> = None;
+        let mut suffix: Option<&'b str> = None;
+        if token_size > 0 {
+            let prefix_size = match self.find_prefix(token) {
+                Some(size) => size,
+                None => 0,
+            };
+            let suffix_size = match self.find_suffix(token) {
+                Some(size) => size,
+                None => 0,
+            };
+            let mut middle_end = token_size - suffix_size;
+            // If the suffix starts before the prefix ends, just ignore the suffix.
+            if middle_end < prefix_size {
+                middle_end = token_size
+            };
+            if middle_end > prefix_size {
+                middle = token.get(prefix_size..middle_end);
+            }
+            if prefix_size > 0 {
+                prefix = token.get(0..prefix_size);
+            }
+            if token_size > middle_end {
+                suffix = token.get(middle_end..token_size);
+            }
+        }
+        (prefix, middle, suffix)
     }
 
     pub fn tokenize<'a>(&self, s: &'a str) -> Vec<&'a str> {
@@ -42,14 +93,28 @@ impl Tokenizer {
                 let sub_token = token.get(sub_token_index..infix_match.start()).unwrap();
                 let infix = token.get(infix_match.start()..infix_match.end()).unwrap();
                 sub_token_index = infix_match.end();
-                if sub_token.len() > 0 {
-                    final_tokens.push(sub_token);
+                let (prefix, middle, suffix) = self.separate_affixes(sub_token);
+                if let Some(piece) = prefix {
+                    final_tokens.push(piece);
+                }
+                if let Some(piece) = middle {
+                    final_tokens.push(piece);
+                }
+                if let Some(piece) = suffix {
+                    final_tokens.push(piece);
                 }
                 final_tokens.push(infix);
             }
             let sub_token = token.get(sub_token_index..token.len()).unwrap();
-            if sub_token.len() > 0 {
-                final_tokens.push(sub_token);
+            let (prefix, middle, suffix) = self.separate_affixes(sub_token);
+            if let Some(piece) = prefix {
+                final_tokens.push(piece);
+            }
+            if let Some(piece) = middle {
+                final_tokens.push(piece);
+            }
+            if let Some(piece) = suffix {
+                final_tokens.push(piece);
             }
         }
         final_tokens
@@ -58,6 +123,64 @@ impl Tokenizer {
     pub fn find_infix<'a, 'b>(&'a self, token: &'b str) -> Matches<'a, 'b> {
         self.infix_re.find_iter(token)
     }
+
+    pub fn find_prefix(&self, token: &str) -> Option<usize> {
+        match self.prefix_re.find(token) {
+            Some(mat) => {
+                return Some(mat.end() - mat.start());
+            }
+            None => {
+                return None;
+            }
+        }
+    }
+
+    pub fn find_suffix(&self, token: &str) -> Option<usize> {
+        match self.suffix_re.find(token) {
+            Some(mat) => {
+                return Some(mat.end() - mat.start());
+            }
+            None => {
+                return None;
+            }
+        }
+    }
+}
+
+pub struct Config {
+    filename: String,
+}
+
+impl Config {
+    pub fn new(args: &[String]) -> Result<Config, &'static str> {
+        if args.len() > 2 {
+            return Err("too many arguments");
+        } else if args.len() < 2 {
+            return Err("not enough arguments");
+        }
+        // TODO: avoid `clone()`-ing
+        let filename = args[1].clone();
+        Ok(Config { filename })
+    }
+}
+
+pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    println!("Reading input file {}", config.filename);
+
+    // TODO: make more efficient. Don't need to read immediately into one big string.
+    // Can iterator over lines lazily.
+    let contents = fs::read_to_string(config.filename)?;
+    let lines = contents.split_terminator("\n");
+
+    let tokenizer = Tokenizer::english();
+    println!("Initialized tokenizer {:?}", tokenizer);
+
+    for line in lines {
+        let tokens = tokenizer.tokenize(line);
+        println!("{:?}", tokens);
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
@@ -98,5 +221,38 @@ mod tests {
         // NOTE: `expected` will have an empty string at the beginning and end,
         // so we only use the interior elements for comparison.
         assert_eq!(tokens[..], expected[1..expected.len() - 1]);
+    }
+
+    #[test]
+    fn test_tokenize_empty_string() {
+        let tokenizer = Tokenizer::english();
+        let s = "";
+        let tokens = tokenizer.tokenize(s);
+        let expected: Vec<&str> = Vec::new();
+        assert_eq!(tokens, expected);
+    }
+
+    #[test]
+    fn test_tokenize_apostrophes() {
+        let tokenizer = Tokenizer::english();
+        let s = "I'm";
+        let tokens = tokenizer.tokenize(s);
+        assert_eq!(tokens, vec!["I", "'m"]);
+    }
+
+    #[test]
+    fn test_tokenize_find_prefix() {
+        let tokenizer = Tokenizer::english();
+        let token = "$2";
+        let prefix_len = tokenizer.find_prefix(token).unwrap();
+        assert_eq!(prefix_len, 1);
+    }
+
+    #[test]
+    fn test_tokenize_find_suffix() {
+        let tokenizer = Tokenizer::english();
+        let token = "I'm";
+        let suffix_len = tokenizer.find_suffix(token).unwrap();
+        assert_eq!(suffix_len, 2);
     }
 }
