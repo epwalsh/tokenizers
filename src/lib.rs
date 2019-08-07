@@ -1,5 +1,6 @@
 use std::error::Error;
 use std::fs;
+use std::str;
 
 mod tokenizer;
 
@@ -11,31 +12,26 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() > 2 {
-            return Err("too many arguments");
-        } else if args.len() < 2 {
-            return Err("not enough arguments");
-        }
-        // TODO: avoid `clone()`-ing
-        let filename = args[1].clone();
+    pub fn new(mut args: std::env::Args) -> Result<Config, &'static str> {
+        // First arg is the path of the binary.
+        args.next();
+
+        let filename = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file name"),
+        };
+
         Ok(Config { filename })
     }
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    // Initialize tokenizer.
     let tokenizer = Tokenizer::english();
-
-    // TODO: make more efficient. Don't need to read immediately into one big string,
-    // could iterator over lines lazily.
     let contents = fs::read_to_string(config.filename)?;
-    let lines = contents.split_terminator("\n");
-    for line in lines {
+    for line in contents.lines() {
         let tokens = tokenizer.tokenize(line);
         println!("{:?}", tokens);
     }
-
     Ok(())
 }
 
@@ -44,9 +40,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_new_config() {
-        let args = vec![String::from("./bin/tokenize"), String::from("foo.txt")];
-        let config = Config::new(&args[..]).unwrap();
-        assert_eq!(config, Config{ filename: String::from("foo.txt") });
+    fn test_run_ok() {
+        let config = Config { filename: String::from("tests/fixtures/poem.txt") };
+        let result = run(config);
+        if let Err(_) = result {
+            panic!("Result of 'run' should be Ok");
+        };
+    }
+
+    #[test]
+    fn test_run_err() {
+        let config = Config { filename: String::from("non_existant_file.txt") };
+        let result = run(config);
+        if let Ok(_) = result {
+            panic!("Result of 'run' should be Err");
+        };
     }
 }
