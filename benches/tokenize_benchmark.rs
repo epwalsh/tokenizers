@@ -8,7 +8,7 @@ use criterion::black_box;
 use tokenz::Tokenizer;
 
 
-fn criterion_benchmark(c: &mut Criterion) {
+fn bench_tokenizer(c: &mut Criterion) {
     let tokenizer = Tokenizer::english();
     let text = "\
 I'm nobody! Who are you?
@@ -23,5 +23,5 @@ To an admiring bog!";
     c.bench_function("tokenize poem", move |b| b.iter(|| tokenizer.tokenize(black_box(text))));
 }
 
-criterion_group!(benches, criterion_benchmark);
+criterion_group!(benches, bench_tokenizer);
 criterion_main!(benches);
