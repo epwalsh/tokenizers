@@ -2,7 +2,6 @@ extern crate regex;
 
 use regex::{Matches, Regex};
 
-
 #[derive(Debug)]
 pub struct Tokenizer {
     token_re: Regex,
@@ -34,7 +33,7 @@ impl Tokenizer {
         let token_pattern = r"^(https?://.*)$";
         let infix_pattern = r"[?,!.*+-]";
         let prefix_pattern = r"^(\$)";
-        let suffix_pattern = r"('m|'t|'d|'s|%)$";
+        let suffix_pattern = r"('(m|t|d|s|ll)|%)$";
         Tokenizer::new(token_pattern, infix_pattern, prefix_pattern, suffix_pattern)
     }
 

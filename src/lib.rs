@@ -5,8 +5,7 @@ mod tokenizer;
 
 pub use crate::tokenizer::Tokenizer;
 
-
-#[derive(Debug,PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Config {
     filename: String,
 }
@@ -25,16 +24,13 @@ impl Config {
 }
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    println!("Reading input file {}", config.filename);
-
-    // TODO: make more efficient. Don't need to read immediately into one big string.
-    // Can iterator over lines lazily.
-    let contents = fs::read_to_string(config.filename)?;
-    let lines = contents.split_terminator("\n");
-
     // Initialize tokenizer.
     let tokenizer = Tokenizer::english();
 
+    // TODO: make more efficient. Don't need to read immediately into one big string,
+    // could iterator over lines lazily.
+    let contents = fs::read_to_string(config.filename)?;
+    let lines = contents.split_terminator("\n");
     for line in lines {
         let tokens = tokenizer.tokenize(line);
         println!("{:?}", tokens);
@@ -51,6 +47,6 @@ mod tests {
     fn test_new_config() {
         let args = vec![String::from("./bin/tokenize"), String::from("foo.txt")];
         let config = Config::new(&args[..]).unwrap();
-        assert_eq!(config.filename, "foo.txt");
+        assert_eq!(config, Config{ filename: String::from("foo.txt") });
     }
 }
