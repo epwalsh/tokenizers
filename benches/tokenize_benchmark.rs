@@ -8,20 +8,27 @@ use criterion::black_box;
 use tokenizers::Tokenizer;
 
 
-fn bench_tokenizer(c: &mut Criterion) {
-    let tokenizer = Tokenizer::english();
-    let text = "\
-I'm nobody! Who are you?
-Are you nobody, too?
-Then there's a pair of us - don't tell!
-They'd banish us, you know.
+static INPUT: &'static str =
+    "In addition to conventional static typing, before version 0.4, Rust also supported \
+     typestates. The typestate system modeled assertions before and after program statements, \
+     through use of a special check statement. Discrepancies could be discovered at compile time, \
+     rather than when a program was running, as might be the case with assertions in C or C++ \
+     code. The typestate concept was not unique to Rust, as it was first introduced in the \
+     language NIL. Typestates were removed because in practice they found little use, though the \
+     same functionality can still be achieved with branding patterns.
 
-How dreary to be somebody!
-How public, like a frog
-To tell your name the livelong day
-To an admiring bog!";
-    c.bench_function("tokenize poem", move |b| b.iter(|| tokenizer.tokenize(black_box(text))));
+The style changed between \
+     0.2, 0.3 and 0.4. Version 0.2 introduced classes for the first time, with version 0.3 adding \
+     a number of features including destructors and polymorphism through the use of interfaces. \
+     In Rust 0.4, traits were added as a means to provide inheritance; In January 2014, the \
+     editor-in-chief of Dr Dobb's, Andrew Binstock, commented on Rust's chances to become a \
+     competitor to C++.";
+
+
+fn bench_simple_tokenizer(c: &mut Criterion) {
+    let tokenizer = tokenizers::SimpleTokenizer::new();
+    c.bench_function("SimpleTokenizer", move |b| b.iter(|| tokenizer.tokenize(black_box(INPUT)).last()));
 }
 
-criterion_group!(benches, bench_tokenizer);
+criterion_group!(benches, bench_simple_tokenizer);
 criterion_main!(benches);

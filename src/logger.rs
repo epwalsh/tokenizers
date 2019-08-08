@@ -23,7 +23,7 @@ impl Logger {
         let line_count: usize = 0;
         let token_count: usize = 0;
         let start_time = time::Instant::now();
-        let update_interval: usize = 1000;
+        let update_interval: usize = 100_000;
         Logger {
             pb,
             line_count,

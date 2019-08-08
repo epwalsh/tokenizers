@@ -1,0 +1,14 @@
+language: rust
+rust:
+  - stable
+  - beta
+before_script:
+  - rustup component add rustfmt
+script:
+  cargo fmt -- --check &&
+  cargo build --verbose &&
+  cargo test  --verbose
+branches:
+  only:
+    - master
+dist: xenial
