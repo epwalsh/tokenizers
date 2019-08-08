@@ -2,11 +2,10 @@
 
 extern crate criterion;
 
-use criterion::Criterion;
 use criterion::black_box;
+use criterion::Criterion;
 
 use tokenizers::Tokenizer;
-
 
 static INPUT: &'static str =
     "In addition to conventional static typing, before version 0.4, Rust also supported \
@@ -24,10 +23,11 @@ The style changed between \
      editor-in-chief of Dr Dobb's, Andrew Binstock, commented on Rust's chances to become a \
      competitor to C++.";
 
-
 fn bench_simple_tokenizer(c: &mut Criterion) {
     let tokenizer = tokenizers::SimpleTokenizer::new();
-    c.bench_function("SimpleTokenizer", move |b| b.iter(|| tokenizer.tokenize(black_box(INPUT)).last()));
+    c.bench_function("SimpleTokenizer", move |b| {
+        b.iter(|| tokenizer.tokenize(black_box(INPUT)).last())
+    });
 }
 
 criterion_group!(benches, bench_simple_tokenizer);
