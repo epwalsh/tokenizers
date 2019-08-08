@@ -5,7 +5,7 @@ extern crate criterion;
 use criterion::Criterion;
 use criterion::black_box;
 
-use tokenz::Tokenizer;
+use tokenizers::Tokenizer;
 
 
 fn bench_tokenizer(c: &mut Criterion) {

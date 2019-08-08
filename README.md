@@ -1,6 +1,6 @@
-# tokenz
+# tokenizers
 
-A lightweight tokenizer for Rust with a CLI.
+Lightweight tokenizers for Rust with a CLI.
 
 > This is my first real project written in Rust, so bear with me if not everything is idiomatic!
 

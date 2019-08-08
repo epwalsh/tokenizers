@@ -1,4 +1,4 @@
-use tokenz::Tokenizer;
+use tokenizers::Tokenizer;
 
 #[test]
 fn test_english_tokenize() {
