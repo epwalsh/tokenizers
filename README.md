@@ -1,4 +1,4 @@
-# tokenizers
+# tokenize`rs`
 
 Lightweight tokenizers for Rust with a CLI.
 
