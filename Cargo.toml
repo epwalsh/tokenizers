@@ -3,6 +3,13 @@ name = "tokenizers"
 version = "0.1.0"
 authors = ["epwalsh <epwalsh10@gmail.com>"]
 edition = "2018"
+license = "MIT"
+description = "Lightweight tokenizers with a simple CLI"
+readme = "README.md"
+homepage = "https://github.com/epwalsh/tokenizers"
+repository = "https://github.com/epwalsh/tokenizers"
+keywords = ["cli", "tokenizer", "token", "nlp"]
+categories = ["command-line-utilities"]
 
 [lib]
 bench = false
