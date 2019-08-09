@@ -7,8 +7,11 @@ use exitfailure::ExitFailure;
 use failure::ResultExt;
 use structopt::StructOpt;
 
-use tokenizers::logger::{ErrorKind, Logger};
 use tokenizers::Tokenizer;
+
+mod logger;
+
+use crate::logger::{ErrorKind, Logger};
 
 #[derive(Debug, StructOpt)]
 #[structopt(

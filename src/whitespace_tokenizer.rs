@@ -25,6 +25,17 @@ impl<'a> Iterator for WhitespaceIterator<'a> {
     }
 }
 
+/// A simple tokenizer that just splits on whitespace.
+///
+/// # Examples
+/// ```
+/// use tokenizers::{Tokenizer, Token, WhitespaceTokenizer};
+///
+/// let tokenizer = WhitespaceTokenizer::new();
+/// let tokens: Vec<Token> = tokenizer.tokenize("Hello, World!").collect();
+/// assert_eq!(tokens.len(), 2);
+/// assert_eq!(tokens[0].term(), "Hello,");
+/// ```
 pub struct WhitespaceTokenizer;
 
 impl WhitespaceTokenizer {

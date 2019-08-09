@@ -1,4 +1,3 @@
-pub mod logger;
 mod tokenizer;
 mod whitespace_tokenizer;
 
