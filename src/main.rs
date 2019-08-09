@@ -28,7 +28,7 @@ struct Opt {
 fn main() -> Result<(), ExitFailure> {
     let opt = Opt::from_args();
     let mut logger = Logger::new();
-    let tokenizer = tokenizers::SimpleTokenizer::new();
+    let tokenizer = tokenizers::WhitespaceTokenizer::new();
 
     // Initialize input file handle.
     let input_file =
