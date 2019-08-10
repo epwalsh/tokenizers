@@ -35,6 +35,7 @@ impl<'a> Iterator for WhitespaceIterator<'a> {
 /// let tokens: Vec<Token> = tokenizer.tokenize("Hello, World!").collect();
 /// assert_eq!(tokens.len(), 2);
 /// assert_eq!(tokens[0].term(), "Hello,");
+/// assert_eq!(tokens[1].term(), "World!");
 /// ```
 pub struct WhitespaceTokenizer;
 

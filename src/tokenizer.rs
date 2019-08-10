@@ -2,8 +2,8 @@ use std::borrow::Cow;
 
 /// Encapsulates the string term of a token.
 ///
-/// The term that the token encapsulates is a reference to the original string
-/// until the term is modified, at which point it is copied.
+/// The term that the token encapsulates is wrapped in a `Cow` (copy-on-write),
+/// so that the string is only copied if it is modified.
 ///
 /// # Examples
 ///
@@ -31,7 +31,7 @@ impl<'a> Token<'a> {
 }
 
 /// A tokenizer is simply a struct implementing a `tokenize` function that takes a
-/// `str` slice returns at iterator of `Token`s.
+/// string slice and returns an iterator of `Token`s.
 pub trait Tokenizer<'a> {
     type TokenIter: Iterator<Item = Token<'a>>;
 
