@@ -11,7 +11,7 @@ use tokenizers::Tokenizer;
 
 mod logger;
 
-use crate::logger::{ErrorKind, Logger};
+use crate::logger::Logger;
 
 #[derive(Debug, StructOpt)]
 #[structopt(
@@ -34,30 +34,29 @@ fn main() -> Result<(), ExitFailure> {
     let tokenizer = tokenizers::WhitespaceTokenizer::new();
 
     // Initialize input file handle.
-    let input_file =
-        File::open(&opt.input).with_context(|_| logger.failure(ErrorKind::FileRead))?;
+    let input_file = File::open(&opt.input)
+        .with_context(|e| format!("An error occured reading the input file: {}", e))?;
     let input_handle = BufReader::new(input_file);
 
     // Initialize output file handle (default to stdout if no path was given).
     let mut output_handle = BufWriter::new(match &opt.output {
-        Some(path) => {
-            Box::new(File::create(path).with_context(|_| logger.failure(ErrorKind::FileWrite))?)
-                as Box<Write>
-        }
-        None => Box::new(io::stdout()) as Box<Write>,
+        Some(path) => Box::new(
+            File::create(path)
+                .with_context(|e| format!("An error occured opening the output file: {}", e))?,
+        ) as Box<dyn Write>,
+        None => Box::new(io::stdout()) as Box<dyn Write>,
     });
 
     // Iter through lines in the input file while tokenizing and writing to output file.
     let mut n_tokens: usize;
     for line in input_handle.lines() {
-        let line = line.with_context(|_| logger.failure(ErrorKind::LineRead))?;
+        let line = line?;
         n_tokens = 0;
         for token in tokenizer.tokenize(line.as_str()) {
-            write!(output_handle, "{}\t", token.term())
-                .with_context(|_| logger.failure(ErrorKind::LineWrite))?;
+            write!(output_handle, "{}\t", token.term())?;
             n_tokens += 1;
         }
-        write!(output_handle, "\n").with_context(|_| logger.failure(ErrorKind::LineWrite))?;
+        write!(output_handle, "\n")?;
         logger.update(n_tokens);
     }
     logger.finish();
