@@ -1,5 +1,4 @@
 #[macro_use]
-
 extern crate criterion;
 
 use criterion::black_box;

@@ -2,13 +2,6 @@ use std::time;
 
 use indicatif::ProgressBar;
 
-pub enum ErrorKind {
-    FileRead,
-    LineRead,
-    FileWrite,
-    LineWrite,
-}
-
 pub struct Logger {
     pb: ProgressBar,
     line_count: usize,
@@ -73,15 +66,6 @@ impl Logger {
             );
         } else {
             self.pb.finish_with_message("done");
-        }
-    }
-
-    pub fn failure(&self, err: ErrorKind) -> String {
-        match err {
-            ErrorKind::FileRead => String::from("failed to read file"),
-            ErrorKind::LineRead => String::from("failed to read line in file"),
-            ErrorKind::FileWrite => String::from("failed to write to file"),
-            ErrorKind::LineWrite => String::from("failed to write line to file"),
         }
     }
 }
