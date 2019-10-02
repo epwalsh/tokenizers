@@ -31,19 +31,14 @@ impl<'a> Iterator for WhitespaceIterator<'a> {
 /// ```
 /// use tokenizers::{Tokenizer, Token, WhitespaceTokenizer};
 ///
-/// let tokenizer = WhitespaceTokenizer::new();
+/// let tokenizer = WhitespaceTokenizer::default();
 /// let tokens: Vec<Token> = tokenizer.tokenize("Hello, World!").collect();
 /// assert_eq!(tokens.len(), 2);
 /// assert_eq!(tokens[0].term(), "Hello,");
 /// assert_eq!(tokens[1].term(), "World!");
 /// ```
+#[derive(Default)]
 pub struct WhitespaceTokenizer;
-
-impl WhitespaceTokenizer {
-    pub fn new() -> Self {
-        WhitespaceTokenizer {}
-    }
-}
 
 impl<'a> Tokenizer<'a> for WhitespaceTokenizer {
     type TokenIter = WhitespaceIterator<'a>;
@@ -60,7 +55,7 @@ mod tests {
     #[test]
     fn test_whitespace_tokenizer() {
         let s = "Hello, World!";
-        let tokenizer = WhitespaceTokenizer::new();
+        let tokenizer = WhitespaceTokenizer::default();
         let tokens: Vec<Token> = tokenizer.tokenize(s).collect();
         assert_eq!(tokens.len(), 2);
     }

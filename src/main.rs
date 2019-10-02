@@ -31,7 +31,7 @@ struct Opt {
 fn main() -> Result<(), ExitFailure> {
     let opt = Opt::from_args();
     let mut logger = Logger::new();
-    let tokenizer = tokenizers::WhitespaceTokenizer::new();
+    let tokenizer = tokenizers::WhitespaceTokenizer::default();
 
     // Initialize input file handle.
     let input_file =
@@ -57,7 +57,7 @@ fn main() -> Result<(), ExitFailure> {
                 .with_context(|_| logger.failure(ErrorKind::LineWrite))?;
             n_tokens += 1;
         }
-        write!(output_handle, "\n").with_context(|_| logger.failure(ErrorKind::LineWrite))?;
+        writeln!(output_handle).with_context(|_| logger.failure(ErrorKind::LineWrite))?;
         logger.update(n_tokens);
     }
     logger.finish();

@@ -24,7 +24,7 @@ The style changed between \
      competitor to C++.";
 
 fn bench_whitespace_tokenizer(c: &mut Criterion) {
-    let tokenizer = tokenizers::WhitespaceTokenizer::new();
+    let tokenizer = tokenizers::WhitespaceTokenizer::default();
     c.bench_function("WhitespaceTokenizer", move |b| {
         b.iter(|| tokenizer.tokenize(black_box(INPUT)).last())
     });
