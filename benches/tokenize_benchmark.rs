@@ -6,7 +6,7 @@ use criterion::Criterion;
 
 use tokenizers::Tokenizer;
 
-static INPUT: &'static str =
+static INPUT: &str =
     "In addition to conventional static typing, before version 0.4, Rust also supported \
      typestates. The typestate system modeled assertions before and after program statements, \
      through use of a special check statement. Discrepancies could be discovered at compile time, \

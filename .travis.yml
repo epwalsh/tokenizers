@@ -4,14 +4,9 @@ rust:
   - stable
   # - beta
 before_script:
-  - rustup component add rustfmt
-  - rustup component add clippy
+  make setup
 script:
-  cargo fmt -- --check &&
-  cargo clippy -- -D warnings &&
-  cargo test &&
-  cargo bench &&
-  cargo doc
+  make all-checks
 branches:
   only:
     - master
