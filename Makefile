@@ -15,6 +15,10 @@ build :
 release :
 	cargo build --release
 
+.PHONY : examples
+examples :
+	cargo build --examples
+
 .PHONY : format
 format :
 	cargo fmt --
@@ -28,16 +32,16 @@ lint :
 test :
 	cargo test
 
-.PHONY : bench
-bench :
-	cargo bench
-
 .PHONY : doc
 doc :
 	cargo doc
 
 .PHONY : all-checks
-all-checks : lint test bench doc
+all-checks : lint test examples doc
+
+.PHONY : publish
+publish :
+	cargo publish
 
 #
 # Git helpers.
