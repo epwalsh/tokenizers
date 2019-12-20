@@ -1,3 +1,5 @@
+:exclamation: Deprecated: new project coming soon!
+
 # tokenize`rs`
 
 [![Build Status](https://travis-ci.org/epwalsh/tokenizers.svg?branch=master)](https://travis-ci.org/epwalsh/tokenizers)
