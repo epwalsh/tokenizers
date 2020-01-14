@@ -1,4 +1,4 @@
-:exclamation: Deprecated: new project coming soon!
+:exclamation: Deprecated: see https://github.com/huggingface/tokenizers
 
 # tokenize`rs`
 
